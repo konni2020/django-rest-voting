@@ -4,6 +4,7 @@ from django.db.models import Count
 class Poll(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
+    modified = models.DateTimeField(auto_now=True)
 
     @staticmethod
     def valid_polls():
