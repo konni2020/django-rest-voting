@@ -2,3 +2,5 @@ django-voting-note
 
 __pycache__
 *.pyc
+
+*.sqlite3
