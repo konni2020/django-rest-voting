@@ -1,7 +1,11 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.forms.models import model_to_dict
 
 from voting_app.models import Poll, Choice
+
+
+POLL_DETAIL_FIELDS = ['id', 'name', 'description', 'format_modified']
 
 
 def get_choices_data(poll_pk):
@@ -32,11 +36,7 @@ def poll_list(request):
 
 def poll_detail(request, pk):
     poll = Poll.objects.get(pk=pk)
-    data = {
-        'id': poll.id,
-        'name': poll.name,
-        'description': poll.description,
-        'modified': poll.modified,
-    }
+    data = model_to_dict(poll, fields=POLL_DETAIL_FIELDS)
+    data['choices'] = get_choices_data(poll.id)
 
     return JsonResponse(data)
