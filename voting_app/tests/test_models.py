@@ -58,7 +58,6 @@ class PollModelTest(TestCase):
 
 class ChoiceModelTest(TestCase):
 
-
     def test_create_and_retrieve_choice(self):
         poll = create_a_poll()
         choice = Choice()
