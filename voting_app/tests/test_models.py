@@ -55,6 +55,15 @@ class PollModelTest(TestCase):
 
         self.assertEqual(Poll.valid_polls().count(), 1)
 
+    def test_polls_should_in_reverse_modified_order(self):
+        poll_1 = create_a_poll()
+        poll_2 = create_a_poll()
+
+        polls = Poll.objects.all()
+
+        self.assertEqual(poll_2, polls[0])
+        self.assertEqual(poll_1, polls[1])
+
 
 class ChoiceModelTest(TestCase):
 
