@@ -8,6 +8,9 @@ class Poll(models.Model):
     modified = models.DateTimeField(auto_now=True)
     format_modified = models.CharField(blank=True, null=True, max_length=100)
 
+    class Meta:
+        ordering = ('-modified',)
+
     def __str__(self):
         return '{id} - {desc}'.format(id=self.id, desc=self.description)
 
