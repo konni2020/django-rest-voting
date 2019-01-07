@@ -1,8 +1,11 @@
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 
 from voting_app.models import Poll, Choice
+from voting_app.serializers import PollSerializer, ChoiceSerializer
 
 
 POLL_DETAIL_FIELDS = ['id', 'name', 'description', 'format_modified']
@@ -12,7 +15,7 @@ def get_choices_data(poll_pk):
     poll_instance = Poll.objects.get(pk=poll_pk)
     choices_values = poll_instance.choice_set.all()
     choices_data = list(choices_values.values('text', 'total'))
-    return choices_data  
+    return choices_data
 
 
 def poll_list(request):
