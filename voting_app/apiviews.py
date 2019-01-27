@@ -43,9 +43,11 @@ class ChoiceList(generics.ListCreateAPIView):
         serializer = ChoiceSerializer(data=data)
         if serializer.is_valid():
             serializer.save(poll=poll)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChoiceDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -60,11 +62,12 @@ class ChoiceDetail(generics.RetrieveUpdateDestroyAPIView):
         serializer = ChoiceSerializer(choice, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
 # class Voting(APIView):
 
 #     def post(self, request, pk, choice_pk):
@@ -72,4 +75,3 @@ class ChoiceDetail(generics.RetrieveUpdateDestroyAPIView):
 #         data = {'choice': choice_pk, 'poll': pk, 'voted_by': voted_by}
 #         choice = Choice.objects.get(pk=choice_pk)
 #         choice.
-        
