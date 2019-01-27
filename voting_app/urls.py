@@ -1,7 +1,7 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path
 
-from voting_app import views, apiviews
+from voting_app import apiviews
 
 
 app_name = 'polls'
@@ -16,7 +16,7 @@ urlpatterns = [
     # path('<int:pk>/', views.poll_detail, name='poll_detail'),
     # path('', apiviews.PollList.as_view(), name='poll_list'),
     # path('<int:pk>/', apiviews.PollDetail.as_view(), name='poll_detail'),
-    path('create/', apiviews.CreatePoll.as_view(), name='create_poll'),
+    # path('create/', apiviews.CreatePoll.as_view(), name='create_poll'),
     path('<int:pk>/choices/', apiviews.ChoiceList.as_view(), name='choice-list'),
     path('<int:pk>/choices/<int:choice_pk>/', apiviews.ChoiceDetail.as_view(), name='choice-detail'),
 ]
