@@ -10,6 +10,11 @@ from voting_app.models import Poll, Choice
 TEST_POLL = {
     'name': 'john',
     'description': 'What fruit below do you like most?',
+    'kk': 3,
+    'choices': [
+        {'text': 'apple'},
+        {'text': 'orange'},
+    ],
 }
 
 TEST_CHOICES = [
@@ -27,6 +32,7 @@ TEST_CHOICES = [
     },
 ]
 
+
 def create_a_poll():
     poll = Poll()
     for key, value in TEST_POLL.items():   
@@ -34,6 +40,7 @@ def create_a_poll():
     poll.save()
 
     return poll
+
 
 def create_a_choice(poll, instance=None, data=None):
     if instance:
@@ -76,8 +83,6 @@ def get_polls_json_data(polls):
     return [get_poll_json_data(poll) for poll in polls]
 
 
-
-
 class PollAPITest(TestCase):
 
     def test_post_list_view(self):
@@ -98,22 +103,6 @@ class PollAPITest(TestCase):
 
         self.assertJSONEqual(response.content.decode(), data)
 
-    def test_create_poll_view_does_not_allow_get_method(self):
-        url = reverse('polls:create_poll')
-        self.client.get(url, data=TEST_POLL)
-
-        self.assertEqual(Poll.objects.count(), 0)
-
-    def test_create_poll_view_allow_post_method(self):
-        url = reverse('polls:create_poll')
-        response = self.client.post(url, data=TEST_POLL)
-
-        self.assertEqual(Poll.objects.count(), 1)
-
-        poll = Poll.objects.first()
-        for key, value in TEST_POLL.items():
-            self.assertEqual(getattr(poll, key), value)
-
     def test_create_poll_via_poll_viewset(self):
         url = reverse('polls:poll-list')
         response = self.client.post(url, data=TEST_POLL)
@@ -121,6 +110,17 @@ class PollAPITest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Poll.objects.count(), 1)
 
+    def test_create_choices_via_poll_viewset(self):
+        url = reverse('polls:poll-list')
+        response = self.client.post(url, data=TEST_POLL)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Choice.objects.count(), 2)
+
+        poll = Poll.objects.first()
+        choices = Choice.objects.all()
+        for choice in choices:
+            self.assertEqual(choice.poll, poll)
 
 
 class ChoiceAPITest(TestCase):
