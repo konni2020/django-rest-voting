@@ -122,6 +122,20 @@ class PollAPITest(TestCase):
         for choice in choices:
             self.assertEqual(choice.poll, poll)
 
+    def test_response_data_when_create_poll(self):
+        url = reverse('polls:poll-list')
+        response = self.client.post(url, data=TEST_POLL)
+
+        response_data = json.loads(response.content.decode())
+        expect_keys = [
+            'id', 'name', 'description', 
+            'format_modified', 'choices',
+        ]
+        for key in expect_keys:
+            self.assertIn(key, response_data.keys())
+
+        self.assertEqual(len(expect_keys), len(response_data.keys()))
+
 
 class ChoiceAPITest(TestCase):
 
