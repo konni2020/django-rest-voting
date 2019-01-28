@@ -3,8 +3,6 @@ from rest_framework import serializers
 from voting_app.models import Poll, Choice
 
 
-
-
 class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
@@ -12,7 +10,9 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
 
 class PollSerializer(serializers.ModelSerializer):
-    choices = ChoiceSerializer(source='choice_set', many=True, required=False)
+    choices = ChoiceSerializer(
+        source='choice_set', many=True,
+        required=False, read_only=True)
 
     class Meta:
         model = Poll
