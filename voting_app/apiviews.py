@@ -23,14 +23,16 @@ class PollViewSet(viewsets.ModelViewSet):
     serializer_class = PollSerializer
 
     def create_choices(self, poll, request):
-        dict_data = dict(request.data)
-        choices_data = [literal_eval(c) for c in dict_data['choices']]
-        choices_serializer = ChoiceSerializer(data=choices_data, many=True)
+        choices_serializer = ChoiceSerializer(
+            data=request.data['choices'],
+            many=True,
+        )
+
         if choices_serializer.is_valid():
             # we can also just pass `poll=poll`
             choices_serializer.save(poll_id=poll.id)
         else:
-            print(choices_serializer.errors)
+            print(choices_serializer.errors, 'choice serializer error')
 
     def create(self, request):
         poll_serializer = PollSerializer(data=request.data)
@@ -41,6 +43,7 @@ class PollViewSet(viewsets.ModelViewSet):
             return Response(
                 poll_serializer.data, status=status.HTTP_201_CREATED)
         else:
+            print(poll_serializer.errors, 'poll serializer error')
             return Response(
                 poll_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
