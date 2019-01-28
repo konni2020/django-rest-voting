@@ -104,7 +104,10 @@ class PollAPITest(TestCase):
 
     def test_create_poll_via_poll_viewset(self):
         url = reverse('polls:poll-list')
-        response = self.client.post(url, data=TEST_POLL)
+        response = self.client.post(
+            url, data=json.dumps(TEST_POLL), 
+            content_type='application/json'
+        )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Poll.objects.count(), 1)
