@@ -1,6 +1,3 @@
-import json
-from ast import literal_eval
-
 from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -95,11 +92,3 @@ class ChoiceDetail(generics.RetrieveUpdateDestroyAPIView):
         else:
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class Voting(APIView):
-
-#     def post(self, request, pk, choice_pk):
-#         voted_by = request.data.get("voted_by")
-#         data = {'choice': choice_pk, 'poll': pk, 'voted_by': voted_by}
-#         choice = Choice.objects.get(pk=choice_pk)
-#         choice.
