@@ -1,6 +1,6 @@
 import json
 
-from rest_framework.test import APIRequestFactory
+# from rest_framework.test import APIRequestFactory
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
 from django.test import TestCase
@@ -10,7 +10,6 @@ from voting_app.models import Poll, Choice
 TEST_POLL = {
     'name': 'john',
     'description': 'What fruit below do you like most?',
-    'kk': 3,
     'choices': [
         {'text': 'apple'},
         {'text': 'orange'},
@@ -112,7 +111,10 @@ class PollAPITest(TestCase):
 
     def test_create_choices_via_poll_viewset(self):
         url = reverse('polls:poll-list')
-        response = self.client.post(url, data=TEST_POLL)
+        response = self.client.post(
+            url, data=json.dumps(TEST_POLL), 
+            content_type='application/json'
+        )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Choice.objects.count(), 2)
@@ -124,9 +126,13 @@ class PollAPITest(TestCase):
 
     def test_response_data_when_create_poll(self):
         url = reverse('polls:poll-list')
-        response = self.client.post(url, data=TEST_POLL)
+        response = self.client.post(
+            url, data=json.dumps(TEST_POLL), 
+            content_type='application/json'
+        )
 
         response_data = json.loads(response.content.decode())
+
         expect_keys = [
             'id', 'name', 'description', 
             'format_modified', 'choices',
@@ -153,7 +159,7 @@ class ChoiceAPITest(TestCase):
 
         url = reverse('polls:choice-list', kwargs={'pk': poll.pk})
         response = self.client.post(url, data=TEST_CHOICES[0])
-        
+
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Choice.objects.count(), 1)
         self.assertEqual(poll.choice_set.count(), 1)
