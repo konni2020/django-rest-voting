@@ -55,7 +55,7 @@ def create_user(data=None):
 
 def create_a_poll():
     poll = Poll()
-    for key, value in TEST_POLL.items():   
+    for key, value in TEST_POLL.items():
         setattr(poll, key, value)
     poll.save()
 
@@ -68,7 +68,7 @@ def create_a_choice(poll, instance=None, data=None):
         total = instance.total
     elif data:
         text = data['text']
-        total = data['total']  
+        total = data['total']
     else:
         text = TEST_CHOICES[0]['text']
         total = 0
@@ -108,8 +108,21 @@ def get_polls_json_data(polls):
     return [get_poll_json_data(poll) for poll in polls]
 
 
-@skip
-class PollAPITest(TestCase):
+class BaseTest(TestCase):
+
+    def setUp(self):
+        create_user()
+        self.auto_login()
+
+    def auto_login(self):
+        self.client.login(
+            username=TEST_USER['username'],
+            password=TEST_USER['password'],
+        )
+
+
+class PollAPITest(BaseTest):
+
     def test_post_list_view(self):
         create_a_poll_with_choices()
         data = get_polls_json_data(Poll.objects.all())
@@ -131,7 +144,7 @@ class PollAPITest(TestCase):
     def test_create_poll_via_poll_viewset(self):
         url = reverse('polls:poll-list')
         response = self.client.post(
-            url, data=json.dumps(TEST_POLL), 
+            url, data=json.dumps(TEST_POLL),
             content_type='application/json'
         )
 
@@ -141,7 +154,7 @@ class PollAPITest(TestCase):
     def test_create_choices_via_poll_viewset(self):
         url = reverse('polls:poll-list')
         response = self.client.post(
-            url, data=json.dumps(TEST_POLL), 
+            url, data=json.dumps(TEST_POLL),
             content_type='application/json'
         )
 
@@ -156,14 +169,14 @@ class PollAPITest(TestCase):
     def test_response_data_when_create_poll(self):
         url = reverse('polls:poll-list')
         response = self.client.post(
-            url, data=json.dumps(TEST_POLL), 
+            url, data=json.dumps(TEST_POLL),
             content_type='application/json'
         )
 
         response_data = json.loads(response.content.decode())
 
         expect_keys = [
-            'id', 'name', 'description', 
+            'id', 'name', 'description',
             'format_modified', 'choices',
         ]
         for key in expect_keys:
@@ -172,8 +185,7 @@ class PollAPITest(TestCase):
         self.assertEqual(len(expect_keys), len(response_data.keys()))
 
 
-@skip
-class ChoiceAPITest(TestCase):
+class ChoiceAPITest(BaseTest):
 
     def test_choice_list_view(self):
         poll = create_a_poll_with_choices()
