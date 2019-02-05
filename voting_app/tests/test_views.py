@@ -26,6 +26,15 @@ TEST_POLL = {
     ],
 }
 
+SECOND_TEST_POLL = {
+    'name': 'Tom',
+    'description': 'What language below do you like most?',
+    'choices': [
+        {'text': 'python'},
+        {'text': 'javascript'},
+    ],
+}
+
 TEST_CHOICES = [
     {
         'text': 'apple',
@@ -188,6 +197,49 @@ class PollAPITest(BaseViewTest):
             self.assertIn(key, response_data.keys())
 
         self.assertEqual(len(expect_keys), len(response_data.keys()))
+
+    def test_update_poll_use_put_method(self):
+        self.create_a_poll_with_choices()
+        self.assertEqual(Poll.objects.count(), 1)
+
+        poll = Poll.objects.first()
+        url = reverse('polls:poll-detail', kwargs={'pk': poll.pk})
+        response = self.client.put(url, data=SECOND_TEST_POLL)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Poll.objects.count(), 1)
+
+        poll = Poll.objects.first()
+        self.assertEqual(poll.name, SECOND_TEST_POLL['name'])
+        self.assertEqual(poll.description, SECOND_TEST_POLL['description'])
+
+    def test_update_poll_use_patch_method(self):
+        self.create_a_poll_with_choices()
+        self.assertEqual(Poll.objects.count(), 1)
+
+        poll = Poll.objects.first()
+        url = reverse('polls:poll-detail', kwargs={'pk': poll.pk})
+        new_data = {
+            'description': 'new description'
+        }
+        response = self.client.patch(url, data=new_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Poll.objects.count(), 1)
+
+        poll = Poll.objects.first()
+        self.assertEqual(poll.description, new_data['description'])
+
+    def test_delete_poll(self):
+        self.create_a_poll_with_choices()
+        self.assertEqual(Poll.objects.count(), 1)
+
+        poll = Poll.objects.first()
+        url = reverse('polls:poll-detail', kwargs={'pk': poll.pk})
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, 204)  # 204 no content
+        self.assertEqual(Poll.objects.count(), 0)
 
 
 class ChoiceAPITest(BaseViewTest):
