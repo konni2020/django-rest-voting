@@ -39,7 +39,7 @@ class LoginViewTest(TestCase):
 
         return user
 
-    def test_user_login(self):
+    def test_user_login_with_correct_password(self):
         self.generate_user()
         url = reverse('login')
         response = self.client.post(
@@ -49,3 +49,16 @@ class LoginViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'token')
+
+    def test_user_login_with_incorrect_password(self):
+        self.generate_user()
+        wrong_data = TEST_USER.copy()
+        wrong_data['password'] = 'wrong password'
+
+        url = reverse('login')
+        response = self.client.post(
+            url, json.dumps(wrong_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
