@@ -89,6 +89,11 @@ def create_a_poll_with_choices():
 
 def get_choices_data(poll):
     # get choices json data from a poll
+    # -> [
+    # {'text': 'apple', 'total': 3},
+    # {'text': 'pear', 'total': 5},
+    # {'text': 'watermelon', 'total': 10}
+    # ]
     return list(poll.choice_set.all().values('text', 'total'))
 
 
