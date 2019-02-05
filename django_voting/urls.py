@@ -16,8 +16,11 @@ Including another URLconf
 from rest_framework.routers import DefaultRouter
 from django.contrib import admin
 from django.urls import path, include
+from accounts.apiviews import UserCreate, LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('polls/', include('voting_app.urls')),
+    path('users/', UserCreate.as_view(), name="user_create"),
+    path('login/', LoginView.as_view(), name="login"),
 ]
