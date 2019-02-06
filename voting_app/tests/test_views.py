@@ -266,6 +266,24 @@ class PollAPITest(BaseViewTest):
         poll = Poll.objects.first()
         self.assertEqual(poll.description, new_data['description'])
 
+    def test_can_not_update_poll_created_by_other_user(self):
+        self.create_a_poll_with_choices()
+
+        self.create_user(data=SECOND_TEST_USER)
+        self.auto_login(user_data=SECOND_TEST_USER)
+
+        self.assert_client_username(SECOND_TEST_USER['username'])
+
+        poll = Poll.objects.first()
+        url = reverse('polls:poll-detail', kwargs={'pk': poll.pk})
+        response = self.client.put(url, data=SECOND_TEST_POLL)
+
+        self.assertEqual(response.status_code, 403)
+
+        poll = Poll.objects.first()
+        self.assertEqual(poll.name, TEST_POLL['name'])
+        self.assertEqual(poll.description, TEST_POLL['description'])
+
     def test_delete_poll(self):
         self.create_a_poll_with_choices()
         self.assertEqual(Poll.objects.count(), 1)
@@ -277,13 +295,12 @@ class PollAPITest(BaseViewTest):
         self.assertEqual(response.status_code, 204)
         self.assertEqual(Poll.objects.count(), 0)
 
-    def test_can_not_delete_poll_create_by_other_user(self):
+    def test_can_not_delete_poll_created_by_other_user(self):
         self.create_a_poll_with_choices()
         self.assertEqual(Poll.objects.count(), 1)
 
         # login as second user
         self.create_user(data=SECOND_TEST_USER)
-        self.client.logout()
         self.auto_login(user_data=SECOND_TEST_USER)
 
         self.assert_client_username(SECOND_TEST_USER['username'])
