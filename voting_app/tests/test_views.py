@@ -4,7 +4,7 @@ from unittest import skip
 # from rest_framework.test import APIRequestFactory
 from django.forms.models import model_to_dict
 from django.contrib.auth import get_user
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.shortcuts import reverse
 from django.test import TestCase, tag
 from rest_framework.test import APITestCase
@@ -13,6 +13,8 @@ from voting_app.models import Poll, Choice
 from voting_app.serializers import PollSerializer, ChoiceSerializer
 from accounts.serializers import UserSerializer
 
+
+User = get_user_model()
 """
 204 no content
 401 unauthorized

@@ -1,8 +1,10 @@
 from django.test import TestCase, tag
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 from voting_app.models import Poll, Choice
 
+
+User = get_user_model()
 
 TEST_USER = {
     'username': 'konni',
