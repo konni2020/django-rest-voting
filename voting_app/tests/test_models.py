@@ -53,7 +53,6 @@ def create_a_poll():
     return poll
 
 
-@tag('test')
 class PollModelTest(TestCase):
 
     def test_create_and_retrieve_poll(self):

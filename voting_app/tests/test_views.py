@@ -10,6 +10,7 @@ from django.test import TestCase, tag
 from rest_framework.test import APITestCase
 
 from voting_app.models import Poll, Choice
+from voting_app.serializers import PollSerializer, ChoiceSerializer
 from accounts.serializers import UserSerializer
 
 """
@@ -83,11 +84,12 @@ class BaseTest(APITestCase):
         if not user:
             user = User.objects.first()
 
-        poll = Poll()
-        for key, value in TEST_POLL.items():
-            setattr(poll, key, value)
-        poll.author = user
-        poll.save()
+        poll_serializer = PollSerializer(data=TEST_POLL)
+        if poll_serializer.is_valid():
+            poll = poll_serializer.save(author=user)
+        else:
+            print(poll_serializer.errors)
+            return None
 
         return poll
 
@@ -103,12 +105,15 @@ class BaseTest(APITestCase):
             text = TEST_CHOICES[0]['text']
             total = 0
 
-        choice = Choice.objects.create(poll=poll, text=text, total=total)
+        data = {'text': text, 'total': total}
+        choice_serializer = ChoiceSerializer(data=data)
+        if choice_serializer.is_valid():
+            choice = choice_serializer.save(poll=poll)
 
         return choice
 
     @classmethod
-    def create_a_poll_with_choices(cls, ):
+    def create_a_poll_with_choices(cls):
         poll = cls.create_a_poll()
 
         for choice_data in TEST_CHOICES:
@@ -330,8 +335,7 @@ class ChoiceAPITest(BaseViewTest):
 
     def test_create_choice_via_post_method_on_list_view(self):
         poll = self.create_a_poll()
-
-        url = reverse('polls:choice-list', kwargs={'pk': poll.pk})
+        url = reverse('polls:choice-list', kwargs={'pk': poll.id})
         response = self.client.post(url, data=TEST_CHOICES[0])
 
         self.assertEqual(response.status_code, 201)
