@@ -3,12 +3,19 @@ from unittest import skip
 
 # from rest_framework.test import APIRequestFactory
 from django.forms.models import model_to_dict
+from django.contrib.auth import get_user
 from django.shortcuts import reverse
 from django.test import TestCase, tag
 from rest_framework.test import APITestCase
 
 from voting_app.models import Poll, Choice
 from accounts.serializers import UserSerializer
+
+"""
+204 no content
+401 unauthorized
+403 forbidden ("You do not have permission to perform this action.")
+"""
 
 
 TEST_USER = {
@@ -17,8 +24,14 @@ TEST_USER = {
     'password': 'q,1234',
 }
 
+SECOND_TEST_USER = {
+    'username': 'tom',
+    'email': 'tom@test.com',
+    'password': 'testpass',
+}
+
 TEST_POLL = {
-    'name': 'john',
+    'name': 'konni',
     'description': 'What fruit below do you like most?',
     'choices': [
         {'text': 'apple'},
@@ -27,7 +40,7 @@ TEST_POLL = {
 }
 
 SECOND_TEST_POLL = {
-    'name': 'Tom',
+    'name': 'tom',
     'description': 'What language below do you like most?',
     'choices': [
         {'text': 'python'},
@@ -128,16 +141,39 @@ class BaseViewTest(BaseTest):
         self.create_user()
         self.auto_login()
 
-    def auto_login(self):
-        self.client.login(
-            username=TEST_USER['username'],
-            password=TEST_USER['password'],
+    def auto_login(self, user_data=None):
+        if not user_data:
+            user_data = TEST_USER
+
+        # True if success login
+        return self.client.login(
+            username=user_data['username'],
+            password=user_data['password'],
         )
+
+    def assert_client_username(self, username):
+        user = get_user(self.client)
+        self.assertEqual(user.username, username)
+
+    def show_response_content(self, response):
+        print(response.content.decode())
 
 
 class PollAPITest(BaseViewTest):
 
     def test_post_list_view(self):
+        self.create_a_poll_with_choices()
+        data = self.get_poll_list_json_data(Poll.objects.all())
+
+        url = reverse('polls:poll-list')
+        response = self.client.get(url)
+
+        self.assertJSONEqual(response.content.decode(), data)
+
+    def test_post_list_view_without_login(self):
+        self.client.logout()
+        self.assert_client_username('')
+        
         self.create_a_poll_with_choices()
         data = self.get_poll_list_json_data(Poll.objects.all())
 
@@ -238,8 +274,26 @@ class PollAPITest(BaseViewTest):
         url = reverse('polls:poll-detail', kwargs={'pk': poll.pk})
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, 204)  # 204 no content
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(Poll.objects.count(), 0)
+
+    def test_can_not_delete_poll_create_by_other_user(self):
+        self.create_a_poll_with_choices()
+        self.assertEqual(Poll.objects.count(), 1)
+
+        # login as second user
+        self.create_user(data=SECOND_TEST_USER)
+        self.client.logout()
+        self.auto_login(user_data=SECOND_TEST_USER)
+
+        self.assert_client_username(SECOND_TEST_USER['username'])
+
+        poll = Poll.objects.first()
+        url = reverse('polls:poll-detail', kwargs={'pk': poll.pk})
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Poll.objects.count(), 1)
 
 
 class ChoiceAPITest(BaseViewTest):
@@ -280,14 +334,11 @@ class TestToken(BaseTest):
         return token['token']
 
     def test_poll_list_view_without_token(self):
+        # app should allow users to see poll-list without token
         url = reverse('polls:poll-list')
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 401)
-        self.assertIn(
-            "Authentication credentials were not provided.",
-            response.content.decode()
-        )
+        self.assertEqual(response.status_code, 200)
 
     def test_poll_list_view_with_incorrect_token(self):
         token = self.get_token()
@@ -302,12 +353,3 @@ class TestToken(BaseTest):
             "Invalid token.",
             response.content.decode()
         )
-
-    def test_poll_list_view_with_correct_token(self):
-        token = self.get_token()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token)
-
-        url = reverse('polls:poll-list')
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, 200)
