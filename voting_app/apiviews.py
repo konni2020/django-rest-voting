@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from voting_app.models import Poll, Choice
 from voting_app.serializers import PollSerializer, ChoiceSerializer
+from voting_app.helper import OnlyOwnerCanUpdateOrDelete
 
 
 # class PollList(generics.ListCreateAPIView):
@@ -18,6 +19,7 @@ from voting_app.serializers import PollSerializer, ChoiceSerializer
 class PollViewSet(viewsets.ModelViewSet):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
+    permission_classes = (OnlyOwnerCanUpdateOrDelete,)
 
     def create_choices(self, poll, request):
         choices_serializer = ChoiceSerializer(
