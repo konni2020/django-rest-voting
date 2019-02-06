@@ -4,6 +4,7 @@ from unittest import skip
 # from rest_framework.test import APIRequestFactory
 from django.forms.models import model_to_dict
 from django.contrib.auth import get_user
+from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from django.test import TestCase, tag
 from rest_framework.test import APITestCase
@@ -31,7 +32,7 @@ SECOND_TEST_USER = {
 }
 
 TEST_POLL = {
-    'name': 'konni',
+    # 'name': 'konni',
     'description': 'What fruit below do you like most?',
     'choices': [
         {'text': 'apple'},
@@ -40,7 +41,7 @@ TEST_POLL = {
 }
 
 SECOND_TEST_POLL = {
-    'name': 'tom',
+    # 'name': 'tom',
     'description': 'What language below do you like most?',
     'choices': [
         {'text': 'python'},
@@ -78,10 +79,14 @@ class BaseTest(APITestCase):
         return user
 
     @classmethod
-    def create_a_poll(cls):
+    def create_a_poll(cls, user=None):
+        if not user:
+            user = User.objects.first()
+
         poll = Poll()
         for key, value in TEST_POLL.items():
             setattr(poll, key, value)
+        poll.author = user
         poll.save()
 
         return poll
@@ -126,6 +131,7 @@ class BaseTest(APITestCase):
         fields = ['id', 'name', 'description', 'format_modified']
         data = model_to_dict(poll, fields=fields)
         data['choices'] = cls.get_choices_data(poll)
+        data['author'] = poll.author.username
         return data
 
     @classmethod
@@ -173,7 +179,7 @@ class PollAPITest(BaseViewTest):
     def test_post_list_view_without_login(self):
         self.client.logout()
         self.assert_client_username('')
-        
+
         self.create_a_poll_with_choices()
         data = self.get_poll_list_json_data(Poll.objects.all())
 
@@ -226,7 +232,7 @@ class PollAPITest(BaseViewTest):
         response_data = json.loads(response.content.decode())
 
         expect_keys = [
-            'id', 'name', 'description',
+            'id', 'author', 'description',
             'format_modified', 'choices',
         ]
         for key in expect_keys:
@@ -246,7 +252,6 @@ class PollAPITest(BaseViewTest):
         self.assertEqual(Poll.objects.count(), 1)
 
         poll = Poll.objects.first()
-        self.assertEqual(poll.name, SECOND_TEST_POLL['name'])
         self.assertEqual(poll.description, SECOND_TEST_POLL['description'])
 
     def test_update_poll_use_patch_method(self):
@@ -281,7 +286,6 @@ class PollAPITest(BaseViewTest):
         self.assertEqual(response.status_code, 403)
 
         poll = Poll.objects.first()
-        self.assertEqual(poll.name, TEST_POLL['name'])
         self.assertEqual(poll.description, TEST_POLL['description'])
 
     def test_delete_poll(self):

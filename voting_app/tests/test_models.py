@@ -1,8 +1,16 @@
-from django.test import TestCase
+from django.test import TestCase, tag
+from django.contrib.auth.models import User
+
 from voting_app.models import Poll, Choice
 
+
+TEST_USER = {
+    'username': 'konni',
+    'email': 'test@test.com',
+    'password': 'q,1234',
+}
+
 TEST_POLL = {
-    'name': 'john',
     'description': 'What fruit below do you like most?',
 }
 
@@ -23,27 +31,44 @@ TEST_CHOICES = [
 ]
 
 
+def create_or_get_user(data=None):
+    if User.objects.count() == 0:
+        if not data:
+            data = TEST_USER
+
+        user = User.objects.create_user(**data)
+        return user
+
+    return User.objects.first()
+
+
 def create_a_poll():
     poll = Poll()
-    for key, value in TEST_POLL.items():   
+    for key, value in TEST_POLL.items():
         setattr(poll, key, value)
 
+    user = create_or_get_user()
+    poll.author = user
     poll.save()
     return poll
 
 
+@tag('test')
 class PollModelTest(TestCase):
 
     def test_create_and_retrieve_poll(self):
         poll = Poll()
-        for key, value in TEST_POLL.items():   
+        for key, value in TEST_POLL.items():
             setattr(poll, key, value)
+
+        user = create_or_get_user()
+        poll.author = user
         poll.save()
 
         self.assertEqual(Poll.objects.count(), 1)
 
         poll = Poll.objects.first()
-        for key, value in TEST_POLL.items():   
+        for key, value in TEST_POLL.items():
             self.assertEqual(getattr(poll, key), value)
 
     def test_valid_poll_should_has_more_than_one_choice(self):
@@ -78,7 +103,7 @@ class ChoiceModelTest(TestCase):
         self.assertEqual(Choice.objects.count(), 1)
 
         choice = Choice.objects.first()
-        for key, value in TEST_CHOICES[0].items():   
+        for key, value in TEST_CHOICES[0].items():
             self.assertEqual(getattr(choice, key), value)
 
     def test_default_total_is_zero(self):
@@ -97,6 +122,6 @@ class ChoiceModelTest(TestCase):
                 setattr(choice, key, value)
 
             choice.poll = poll
-            choice.save()    
+            choice.save()
 
         self.assertEqual(poll.choice_set.count(), 3)

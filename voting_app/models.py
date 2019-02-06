@@ -1,9 +1,11 @@
 from django.utils import timezone
 from django.db import models
 from django.db.models import Count
+from django.contrib.auth.models import User
+
 
 class Poll(models.Model):
-    name = models.CharField(max_length=50)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
     modified = models.DateTimeField(auto_now=True)
     format_modified = models.CharField(blank=True, null=True, max_length=100)

@@ -1,5 +1,4 @@
 from rest_framework import permissions
-from django.contrib.auth.models import User
 
 
 class OnlyOwnerCanUpdateOrDelete(permissions.BasePermission):
@@ -14,4 +13,4 @@ class OnlyOwnerCanUpdateOrDelete(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.name == request.user.username
+        return obj.author == request.user
