@@ -18,7 +18,7 @@ TEST_USER = {
 
 class RegisterViewTest(TestCase):
     def test_user_create(self):
-        url = reverse('user_create')
+        url = reverse('register')
         response = self.client.post(
             url, json.dumps(TEST_USER),
             content_type='application/json')
@@ -34,7 +34,7 @@ class RegisterViewTest(TestCase):
         data = TEST_USER.copy()
         data['username'] = 'k'
 
-        url = reverse('user_create')
+        url = reverse('register')
         response = self.client.post(
             url, json.dumps(data),
             content_type='application/json')
@@ -46,7 +46,7 @@ class RegisterViewTest(TestCase):
         data = TEST_USER.copy()
         data['password'] = 'k'
 
-        url = reverse('user_create')
+        url = reverse('register')
         response = self.client.post(
             url, json.dumps(data),
             content_type='application/json')
