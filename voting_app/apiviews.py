@@ -1,5 +1,6 @@
 from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
 
 from voting_app.models import Poll, Choice
@@ -19,7 +20,10 @@ from voting_app.helper import OnlyOwnerCanUpdateOrDelete
 class PollViewSet(viewsets.ModelViewSet):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
-    permission_classes = (OnlyOwnerCanUpdateOrDelete,)
+    permission_classes = (
+        OnlyOwnerCanUpdateOrDelete,
+        IsAuthenticatedOrReadOnly
+    )
 
     def create_choices(self, poll, request):
         choices_serializer = ChoiceSerializer(
