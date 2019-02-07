@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from accounts.serializers import UserSerializer
 
 
-class UserCreate(generics.CreateAPIView):
+class RegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
     authentication_classes = ()
     permission_classes = ()

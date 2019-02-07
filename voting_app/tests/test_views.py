@@ -29,13 +29,12 @@ TEST_USER = {
 }
 
 SECOND_TEST_USER = {
-    'username': 'tom',
+    'username': 'tom10',
     'email': 'tom@test.com',
     'password': 'testpass',
 }
 
 TEST_POLL = {
-    # 'name': 'konni',
     'description': 'What fruit below do you like most?',
     'choices': [
         {'text': 'apple'},
@@ -44,7 +43,6 @@ TEST_POLL = {
 }
 
 SECOND_TEST_POLL = {
-    # 'name': 'tom',
     'description': 'What language below do you like most?',
     'choices': [
         {'text': 'python'},

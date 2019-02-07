@@ -18,12 +18,12 @@ from rest_framework.authtoken import views
 from django.contrib import admin
 from django.urls import path, include
 
-from accounts.apiviews import UserCreate, LoginView
+from accounts.apiviews import RegisterView, LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('polls/', include('voting_app.urls')),
-    path('users/', UserCreate.as_view(), name="user_create"),
+    path('users/', RegisterView.as_view(), name="user_create"),
     path('login/', LoginView.as_view(), name="login"),
     # path('login/', views.obtain_auth_token, name="login"),
 ]
