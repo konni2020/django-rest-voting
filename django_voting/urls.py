@@ -23,7 +23,7 @@ from accounts.apiviews import RegisterView, LoginView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('polls/', include('voting_app.urls')),
-    path('users/', RegisterView.as_view(), name="user_create"),
+    path('register/', RegisterView.as_view(), name="register"),
     path('login/', LoginView.as_view(), name="login"),
     # path('login/', views.obtain_auth_token, name="login"),
 ]
