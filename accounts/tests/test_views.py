@@ -27,6 +27,10 @@ class RegisterViewTest(TestCase):
         self.assertNotIn('password', response.content.decode())
 
         response_data = json.loads(response.content.decode())
+        self.assertEqual(
+            sorted(['email', 'token', 'username']),
+            sorted(response_data.keys()))
+        # self.assertIn(response_data['token'], response.content.decode())
         self.assertEqual(response_data['username'], TEST_USER['username'])
         self.assertEqual(response_data['email'], TEST_USER['email'])
 
