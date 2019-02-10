@@ -33,7 +33,11 @@ class LoginView(APIView):
     def post(self, request):
         token = get_token(request)
         if token:
-            return Response({'token': token})
+            return Response({
+                'token': token,
+                'username': request.data.get('username'),
+                'email': request.data.get('email'),
+            })
         else:
             return Response(
                 {'error': 'Wrong Credentials'},
