@@ -30,9 +30,14 @@ class RegisterViewTest(TestCase):
         self.assertEqual(
             sorted(['email', 'token', 'username']),
             sorted(response_data.keys()))
-        # self.assertIn(response_data['token'], response.content.decode())
         self.assertEqual(response_data['username'], TEST_USER['username'])
         self.assertEqual(response_data['email'], TEST_USER['email'])
+        self.assertEqual(User.objects.count(), 1)
+
+        user = User.objects.get(username=TEST_USER['username'])
+        token = user.auth_token.key
+
+        self.assertEqual(response_data['token'], token)
 
     def test_can_not_create_user_with_short_username(self):
         data = TEST_USER.copy()
@@ -80,7 +85,18 @@ class LoginViewTest(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'token')
+
+        response_data = json.loads(response.content.decode())
+        self.assertEqual(
+            sorted(['email', 'token', 'username']),
+            sorted(response_data.keys()))
+        self.assertEqual(response_data['username'], TEST_USER['username'])
+        self.assertEqual(response_data['email'], TEST_USER['email'])
+
+        user = User.objects.get(username=TEST_USER['username'])
+        token = user.auth_token.key
+
+        self.assertEqual(response_data['token'], token)
 
     def test_user_login_with_incorrect_password(self):
         self.generate_user()
